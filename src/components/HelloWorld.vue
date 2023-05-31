@@ -1,75 +1,161 @@
 <template>
   <v-container class="fill-height">
-    <v-responsive class="d-flex align-center text-center fill-height">
-      <v-img height="300" src="@/assets/logo.svg" />
+    <v-responsive>
+      <h1 class="text-h5 text-md-h4 font-weight-light text-center mb-6">
+        What to watch
+      </h1>
 
-      <div class="text-body-2 font-weight-light mb-n1">Welcome to</div>
+      <div class="text-center d-flex justify-center align-center">
+        <v-chip-group v-model="selectedGenre" multiple>
+          <v-chip filter class="mr-2 px-6 hidden-xs" v-for="genre in genres">
+            {{ genre.type }}
+          </v-chip>
+        </v-chip-group>
 
-      <h1 class="text-h2 font-weight-bold">Vuetify</h1>
+        <v-chip class="mr-2 px-6"> Filter </v-chip>
+      </div>
 
-      <div class="py-14" />
+      <v-row class="mt-10 pt-10">
+        <v-col cols="6" sm="3" v-for="movie in movies">
+          <v-card class="mx-auto">
+            <v-img
+              :height="$vuetify.display.mdAndUp ? 435 : 245"
+              aspect-ratio="2/3"
+              :src="'/src/assets/img/movie/' + movie.image + '.jpg'"
+              cover
+            ></v-img>
 
-      <v-row class="d-flex align-center justify-center">
-        <v-col cols="auto">
-          <v-btn
-            href="https://vuetifyjs.com/components/all/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
-          >
-            <v-icon
-              icon="mdi-view-dashboard"
-              size="large"
-              start
-            />
+            <v-card-title class="text-subtitle-1">
+              {{ movie.title }}
+            </v-card-title>
 
-            Components
-          </v-btn>
+            <v-card-subtitle class="text-caption text-md-body-2">
+              {{ movie.genre }} &#183; {{ movie.year }}</v-card-subtitle
+            >
+          </v-card>
         </v-col>
+      </v-row>
 
+      <div class="text-body-2 text-md-body-1 mt-12 mt-md-16 text-center">
+        {{ movies.length }} out of {{ movies.length }}
+      </div>
+
+      <v-row class="mt-6" align="center" justify="center">
         <v-col cols="auto">
-          <v-btn
-            color="primary"
-            href="https://vuetifyjs.com/introduction/why-vuetify/#feature-guides"
-            min-width="228"
-            rel="noopener noreferrer"
-            size="x-large"
-            target="_blank"
-            variant="flat"
-          >
-            <v-icon
-              icon="mdi-speedometer"
-              size="large"
-              start
-            />
-
-            Get Started
-          </v-btn>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn
-            href="https://community.vuetifyjs.com/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
-          >
-            <v-icon
-              icon="mdi-account-group"
-              size="large"
-              start
-            />
-
-            Community
-          </v-btn>
+          <v-btn>Load More</v-btn>
         </v-col>
       </v-row>
     </v-responsive>
   </v-container>
 </template>
 
-<script lang="ts" setup>
-  //
+<script lang="ts">
+export default {
+  data() {
+    return {
+      selectedGenre: [],
+      genres: [
+        {
+          type: "Action",
+          active: false,
+        },
+        {
+          type: "Comedy",
+          active: false,
+        },
+        {
+          type: "Drama",
+          active: false,
+        },
+        {
+          type: "Romance",
+          active: false,
+        },
+        {
+          type: "Thriller",
+          active: false,
+        },
+        {
+          type: "War",
+          active: false,
+        },
+      ],
+      // genres: ["Action", "Comedy", "Drama", "Romance", "Thriller", "War"],
+      movies: [
+        {
+          title: "Spider-Man: Far From Home",
+          genre: "Action",
+          year: "2019",
+          image: "Thumbnail-1",
+        },
+        {
+          title: "Once Upon a Time... in Hollywood",
+          genre: "Comedy",
+          year: "2019",
+          image: "Thumbnail-2",
+        },
+        {
+          title: "1917",
+          genre: "War",
+          year: "2019",
+          image: "Thumbnail-3",
+        },
+        {
+          title: "Murder Mystery",
+          genre: "Comedy",
+          year: "2019",
+          image: "Thumbnail-4",
+        },
+        {
+          title: "Free Guy",
+          genre: "Action",
+          year: "2021",
+          image: "Thumbnail-5",
+        },
+        {
+          title: "The Black Phone",
+          genre: "Thriller",
+          year: "2021",
+          image: "Thumbnail-6",
+        },
+        {
+          title: "Finch",
+          genre: "Drama",
+          year: "2021",
+          image: "Thumbnail-7",
+        },
+        {
+          title: "Tar",
+          genre: "Drama",
+          year: "2022",
+          image: "Thumbnail-8",
+        },
+        {
+          title: "Crazy Rich Asians",
+          genre: "Romance",
+          year: "2018",
+          image: "Thumbnail-9",
+        },
+        {
+          title: "Tenet",
+          genre: "Action",
+          year: "2020",
+          image: "Thumbnail-10",
+        },
+        {
+          title: "Ava",
+          genre: "Thriller",
+          year: "2020",
+          image: "Thumbnail-11",
+        },
+      ],
+    };
+  },
+  methods: {},
+  computed: {
+    filteredMovies: () => {},
+  },
+  mounted() {},
+  created() {},
+};
 </script>
