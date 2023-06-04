@@ -6,9 +6,14 @@
       </h1>
 
       <div class="text-center d-flex justify-center align-center">
-        <v-chip-group v-model="selectedTabGenre" multiple>
+        <v-chip-group
+          selected-class="border border-primary bg-primary-lighten-1 primary--text"
+          v-model="selectedTabGenre"
+          multiple
+        >
           <v-chip
-            filter
+            border="primary"
+            color="primary"
             class="mr-2 px-6 hidden-xs"
             v-for="genre in genres"
             :value="genre.type"
@@ -25,22 +30,40 @@
         >
           <template v-slot:activator="{ props }">
             <!-- <v-btn color="primary" dark > Dropdown </v-btn> -->
-            <v-chip class="mr-2 px-6" v-bind="props"> Filter </v-chip>
+            <v-chip
+              class="mr-2 px-6 d-flex justify-center align-center"
+              :color="filterDropdown ? 'primary' : '#000'"
+              v-bind="props"
+            >
+              <template v-slot:prepend>
+                <icon-base v-if="!filterDropdown" icon-name="Filter" height="14"
+                  ><icon-filter
+                /></icon-base>
+                <v-icon size="18" v-else>mdi-close</v-icon>
+              </template>
+              <span class="ml-1">Filter</span>
+            </v-chip>
           </template>
 
           <v-sheet
             style="backdrop-filter: blur(12px)"
-            class="rounded-lg"
+            class="rounded-xl"
             color="rgba(255, 255, 255, 0.9)"
+            width="392"
           >
-            <v-container>
+            <v-container class="pa-6">
               <v-row justify="space-between">
-                <v-col cols="3">
-                  <p>By genre</p>
-                </v-col>
-                <v-col cols="3">
-                  <div class="text-right" @click="resetFilteredGenre()">
-                    Clear
+                <v-col
+                  cols="12"
+                  class="d-flex align-center justify-space-between"
+                >
+                  <p class="text-h5">By genre</p>
+                  <div
+                    class="text-right text-primary d-flex align-center justify-space-between hover:cursor-pointer"
+                    @click="resetFilteredGenre()"
+                  >
+                    <span class="mr-1">Clear</span>
+                    <v-icon size="24">mdi-close</v-icon>
                   </div>
                 </v-col>
               </v-row>
@@ -53,41 +76,65 @@
                     v-model="selectedGenre"
                     :label="genre.type"
                     :value="genre.type"
-                    class="my-0 shrink"
+                    class="mb-4"
+                    density="0"
+                    hide-details
+                    color="primary"
                   ></v-checkbox>
                   <v-divider></v-divider
                 ></v-col>
               </v-row>
+
               <v-row justify="space-between">
-                <v-col cols="3">
-                  <p>By year</p>
-                </v-col>
-                <v-col cols="3">
-                  <div class="text-right" @click="resetFilteredYear()">
-                    Clear
+                <v-col
+                  cols="12"
+                  class="d-flex align-center justify-space-between"
+                >
+                  <p class="text-h5">By year</p>
+                  <div
+                    class="text-right text-primary d-flex align-center justify-space-between hover:cursor-pointer"
+                    @click="resetFilteredYear()"
+                  >
+                    <span class="mr-1">Clear</span>
+                    <v-icon size="24">mdi-close</v-icon>
                   </div>
                 </v-col>
               </v-row>
 
               <v-row>
-                <v-col>
+                <v-col class="py-0">
                   <v-checkbox
                     v-for="year in years"
                     :key="year"
                     v-model="selectedYear"
                     :label="year"
                     :value="year"
+                    class="mb-4"
+                    density="0"
+                    hide-details
+                    color="primary"
                   ></v-checkbox>
-                  <v-divider></v-divider
-                ></v-col>
+                </v-col>
               </v-row>
 
-              <v-row class="mt-6" align="center" justify="center">
-                <v-col cols="auto">
-                  <v-btn @click="clearFilter()">Clear All</v-btn>
+              <v-divider class="my-6"></v-divider>
+
+              <v-row align="center" justify="center">
+                <v-col cols="6">
+                  <v-btn rounded="lg" flat disabled block @click="clearFilter()"
+                    >Clear All</v-btn
+                  >
                 </v-col>
-                <v-col cols="auto">
-                  <v-btn @click="applyFilter()">Apply</v-btn>
+                <v-col cols="6">
+                  <v-btn
+                    class="text-primary"
+                    color="primary-lighten-1"
+                    rounded="lg"
+                    flat
+                    block
+                    @click="applyFilter()"
+                    >Apply</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-container>
@@ -97,7 +144,7 @@
 
       <v-row class="mt-10 pt-10">
         <v-col cols="6" sm="3" v-for="movie in filteredMovies">
-          <v-card class="mx-auto">
+          <v-card flat class="mx-auto">
             <v-img
               :height="$vuetify.display.mdAndUp ? 435 : 245"
               aspect-ratio="2/3"
@@ -125,6 +172,11 @@
           <v-btn
             v-if="filteredMovies.length != moviesList.length"
             @click="loadMovieList()"
+            class="text-primary px-6"
+            color="primary-lighten-1"
+            rounded="lg"
+            flat
+            block
             >Load More</v-btn
           >
         </v-col>
@@ -136,8 +188,11 @@
 <script lang="ts">
 import { thisExpression, throwStatement } from "@babel/types";
 import { runInThisContext } from "vm";
+import IconBase from "@/components/IconBase.vue";
+import IconFilter from "@/components/icons/IconFilter.vue";
 
 export default {
+  components: { IconBase, IconFilter },
   data() {
     return {
       filterDropdown: false,
