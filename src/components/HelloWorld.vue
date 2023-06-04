@@ -8,7 +8,7 @@
       <div class="text-center d-flex justify-center align-center">
         <v-chip-group
           selected-class="border border-primary bg-primary-lighten-1 primary--text"
-          v-model="selectedTabGenre"
+          v-model="filteredGenre"
           multiple
         >
           <v-chip
@@ -119,7 +119,12 @@
 
               <v-row align="center" justify="center">
                 <v-col cols="6">
-                  <v-btn rounded="lg" flat disabled block @click="clearFilter()"
+                  <v-btn
+                    rounded="lg"
+                    flat
+                    :disabled="disabledClearAll == false ? null : true"
+                    block
+                    @click="clearFilter()"
                     >Clear All</v-btn
                   >
                 </v-col>
@@ -188,6 +193,7 @@ import { thisExpression, throwStatement } from "@babel/types";
 import { runInThisContext } from "vm";
 import IconBase from "@/components/IconBase.vue";
 import IconFilter from "@/components/icons/IconFilter.vue";
+import _ from "lodash";
 
 export default {
   components: { IconBase, IconFilter },
@@ -195,13 +201,8 @@ export default {
     return {
       currentPage: 0,
       pageSize: 4,
-      // totalPage: 0,
       filterDropdown: false,
-      selectedTabGenre: [],
-      selectedGenre: [],
-      selectedYear: [],
       genres: ["Action", "Comedy", "Drama", "Romance", "Thriller", "War"],
-      // genres: ["Action", "Comedy", "Drama", "Romance", "Thriller", "War"],
       years: ["2018", "2019", "2020", "2021", "2022"],
       movieList: [
         {
@@ -271,13 +272,17 @@ export default {
           image: "Thumbnail-11",
         },
       ],
-      filteredMovieList: [],
+      selectedGenre: [],
+      selectedYear: [],
       loadedMovieList: [],
+      filteredGenre: [],
+      filteredYear: [],
+      filteredMovieList: [],
     };
   },
   watch: {
-    selectedTabGenre(val, newVal) {
-      this.selectedGenre = this.selectedTabGenre;
+    filteredGenre(val, newVal) {
+      this.selectedGenre = this.filteredGenre;
       this.filterMovieList(val);
       this.loadMovieList();
     },
@@ -288,6 +293,12 @@ export default {
     },
     totalPage() {
       return Math.ceil(this.totalResult / this.pageSize);
+    },
+    disabledClearAll() {
+      return (
+        _.isEqual(this.filteredGenre, this.selectedGenre) &&
+        _.isEqual(this.filteredYear, this.selectedYear)
+      );
     },
   },
   methods: {
@@ -326,14 +337,16 @@ export default {
           : finalData;
     },
     applyFilter() {
-      this.selectedTabGenre = this.selectedGenre;
+      this.filteredGenre = this.selectedGenre;
+      this.filteredYear = this.selectedYear;
       this.filterDropdown = false;
       this.filterMovieList(this.selectedGenre);
       this.loadMovieList();
     },
     clearFilter() {
-      this.selectedGenre = [];
-      this.selectedYear = [];
+      this.selectedGenre = this.filteredGenre;
+      this.selectedYear = this.filteredYear;
+      this.filterDropdown = false;
     },
     resetFilteredGenre() {
       this.selectedGenre = [];
@@ -341,17 +354,10 @@ export default {
     resetFilteredYear() {
       this.selectedYear = [];
     },
-    // getTotalPage() {
-    //   this.totalPage = Math.round(this.filteredMovieList.length / this.pageSize);
-    // },
   },
   mounted() {
     this.filterMovieList(this.genres);
     this.loadMovieList();
-    // this.getTotalPage();
   },
-  created() {},
 };
 </script>
-
-//
