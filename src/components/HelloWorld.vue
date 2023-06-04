@@ -16,9 +16,9 @@
             color="primary"
             class="mr-2 px-6 hidden-xs"
             v-for="genre in genres"
-            :value="genre.type"
+            :value="genre"
           >
-            {{ genre.type }}
+            {{ genre }}
           </v-chip>
         </v-chip-group>
 
@@ -72,12 +72,11 @@
                 <v-col
                   ><v-checkbox
                     v-for="genre in genres"
-                    :key="genre.type"
+                    :key="genre"
                     v-model="selectedGenre"
-                    :label="genre.type"
-                    :value="genre.type"
+                    :label="genre"
+                    :value="genre"
                     class="mb-4"
-                    density="0"
                     hide-details
                     color="primary"
                   ></v-checkbox>
@@ -110,7 +109,6 @@
                     :label="year"
                     :value="year"
                     class="mb-4"
-                    density="0"
                     hide-details
                     color="primary"
                   ></v-checkbox>
@@ -143,7 +141,7 @@
       </div>
 
       <v-row class="mt-10 pt-10">
-        <v-col cols="6" sm="3" v-for="movie in filteredMovies">
+        <v-col cols="6" sm="3" v-for="movie in loadedMovieList">
           <v-card flat class="mx-auto">
             <v-img
               :height="$vuetify.display.mdAndUp ? 435 : 245"
@@ -164,21 +162,21 @@
       </v-row>
 
       <div class="text-body-2 text-md-body-1 mt-12 mt-md-16 text-center">
-        {{ filteredMovies.length }} out of {{ moviesList.length }}
+        {{ loadedMovieList.length }} out of {{ filteredMovieList.length }}
       </div>
 
       <v-row class="mt-6" align="center" justify="center">
         <v-col cols="auto">
           <v-btn
-            v-if="filteredMovies.length != moviesList.length"
+            v-if="currentPage !== totalPage"
             @click="loadMovieList()"
             class="text-primary px-6"
             color="primary-lighten-1"
             rounded="lg"
             flat
             block
-            >Load More</v-btn
-          >
+            >Load More
+          </v-btn>
         </v-col>
       </v-row>
     </v-responsive>
@@ -195,39 +193,17 @@ export default {
   components: { IconBase, IconFilter },
   data() {
     return {
+      currentPage: 0,
+      pageSize: 4,
+      // totalPage: 0,
       filterDropdown: false,
       selectedTabGenre: [],
       selectedGenre: [],
       selectedYear: [],
-      genres: [
-        {
-          type: "Action",
-          active: false,
-        },
-        {
-          type: "Comedy",
-          active: false,
-        },
-        {
-          type: "Drama",
-          active: false,
-        },
-        {
-          type: "Romance",
-          active: false,
-        },
-        {
-          type: "Thriller",
-          active: false,
-        },
-        {
-          type: "War",
-          active: false,
-        },
-      ],
+      genres: ["Action", "Comedy", "Drama", "Romance", "Thriller", "War"],
       // genres: ["Action", "Comedy", "Drama", "Romance", "Thriller", "War"],
       years: ["2018", "2019", "2020", "2021", "2022"],
-      moviesList: [
+      movieList: [
         {
           title: "Spider-Man: Far From Home",
           genre: "Action",
@@ -295,30 +271,45 @@ export default {
           image: "Thumbnail-11",
         },
       ],
-      filteredMovies: [],
+      filteredMovieList: [],
+      loadedMovieList: [],
     };
   },
   watch: {
     selectedTabGenre(val, newVal) {
       this.selectedGenre = this.selectedTabGenre;
       this.filterMovieList(val);
+      this.loadMovieList();
     },
   },
-  computed: {},
+  computed: {
+    totalResult() {
+      return this.filteredMovieList.length;
+    },
+    totalPage() {
+      return Math.ceil(this.totalResult / this.pageSize);
+    },
+  },
   methods: {
     loadMovieList() {
-      // current length + 4
-      this.filteredMovies = this.moviesList.filter(
-        (item, index) => index < this.filteredMovies.length + 4
+      // to cater for load more
+      this.loadedMovieList = this.filteredMovieList.filter(
+        (item, index) => index < this.loadedMovieList.length + this.pageSize
       );
+
+      this.currentPage++;
     },
-    filterMovieList(genres) {
+    filterMovieList(genres: any) {
       let data, finalData;
 
-      if (genres.length > 0) {
-        data = this.moviesList.filter((item) => genres.includes(item.genre));
+      //reset currentPage and loaded movie list
+      this.currentPage = 0;
+      this.loadedMovieList = [];
+
+      if (genres && genres.length > 0) {
+        data = this.movieList.filter((item) => genres.includes(item.genre));
       } else {
-        data = this.moviesList;
+        data = this.movieList;
       }
 
       if (this.selectedYear.length > 0) {
@@ -329,15 +320,16 @@ export default {
         finalData = data;
       }
 
-      this.filteredMovies =
-        genres.length == 0 && this.selectedYear.length == 0
-          ? this.moviesList
+      this.filteredMovieList =
+        genres && genres.length == 0 && this.selectedYear.length == 0
+          ? this.movieList
           : finalData;
     },
     applyFilter() {
       this.selectedTabGenre = this.selectedGenre;
       this.filterDropdown = false;
       this.filterMovieList(this.selectedGenre);
+      this.loadMovieList();
     },
     clearFilter() {
       this.selectedGenre = [];
@@ -349,10 +341,17 @@ export default {
     resetFilteredYear() {
       this.selectedYear = [];
     },
+    // getTotalPage() {
+    //   this.totalPage = Math.round(this.filteredMovieList.length / this.pageSize);
+    // },
   },
   mounted() {
+    this.filterMovieList(this.genres);
     this.loadMovieList();
+    // this.getTotalPage();
   },
   created() {},
 };
 </script>
+
+//
