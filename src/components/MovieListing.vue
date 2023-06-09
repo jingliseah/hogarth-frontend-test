@@ -5,7 +5,7 @@
         What to watch
       </h1>
 
-      <div class="text-center d-flex justify-center align-center">
+      <div class="text-center hidden-xs d-md-flex justify-center align-center">
         <v-chip-group
           selected-class="border border-primary bg-primary-lighten-1 primary--text"
           v-model="filteredGenre"
@@ -14,7 +14,7 @@
           <v-chip
             border="primary"
             color="primary"
-            class="mr-2 px-6 hidden-xs"
+            class="mr-2 px-6"
             v-for="genre in genres"
             :value="genre"
           >
@@ -47,7 +47,7 @@
 
           <v-sheet
             style="backdrop-filter: blur(12px)"
-            class="rounded-xl"
+            class="rounded-xl hidden-xs"
             color="rgba(255, 255, 255, 0.9)"
             width="392"
           >
@@ -58,13 +58,13 @@
                   class="d-flex align-center justify-space-between"
                 >
                   <p class="text-h5">By genre</p>
-                  <div
-                    class="text-right text-primary d-flex align-center justify-space-between hover:cursor-pointer"
+                  <button
+                    class="text-right text-primary d-flex align-center justify-space-between"
                     @click="resetFilteredGenre()"
                   >
                     <span class="mr-1">Clear</span>
                     <v-icon size="24">mdi-close</v-icon>
-                  </div>
+                  </button>
                 </v-col>
               </v-row>
 
@@ -79,6 +79,7 @@
                     class="mb-4"
                     hide-details
                     color="primary"
+                    density="compact"
                   ></v-checkbox>
                   <v-divider></v-divider
                 ></v-col>
@@ -90,13 +91,13 @@
                   class="d-flex align-center justify-space-between"
                 >
                   <p class="text-h5">By year</p>
-                  <div
-                    class="text-right text-primary d-flex align-center justify-space-between hover:cursor-pointer"
+                  <button
+                    class="text-right text-primary d-flex align-center justify-space-between"
                     @click="resetFilteredYear()"
                   >
                     <span class="mr-1">Clear</span>
                     <v-icon size="24">mdi-close</v-icon>
-                  </div>
+                  </button>
                 </v-col>
               </v-row>
 
@@ -108,9 +109,10 @@
                     v-model="selectedYear"
                     :label="year"
                     :value="year"
-                    class="mb-4"
+                    class="mb-4 checkbox"
                     hide-details
                     color="primary"
+                    density="compact"
                   ></v-checkbox>
                 </v-col>
               </v-row>
@@ -145,6 +147,100 @@
         </v-menu>
       </div>
 
+      <v-col cols="4" class="mx-auto">
+        <v-chip
+          class="mr-2 px-6 d-flex d-md-none justify-center align-center"
+          :color="filterDropdownMob ? 'primary' : '#000'"
+          @click="filterDropdownMob = !filterDropdownMob"
+        >
+          <template v-slot:prepend>
+            <icon-base v-if="!filterDropdownMob" icon-name="Filter" height="14"
+              ><icon-filter
+            /></icon-base>
+            <v-icon size="18" v-else>mdi-close</v-icon>
+          </template>
+          <span class="ml-1">Filter</span>
+        </v-chip>
+      </v-col>
+
+      <transition name="slide-fade">
+        <v-container v-if="filterDropdownMob" class="pa-6 d-md-none">
+          <v-row justify="space-between">
+            <v-col cols="12" class="d-flex align-center justify-space-between">
+              <p class="text-h5">By genre</p>
+              <button
+                class="text-right text-primary d-flex align-center justify-space-between cursor-pointer"
+                @click="resetFilteredGenre()"
+              >
+                <span class="mr-1">Clear</span>
+                <v-icon size="24">mdi-close</v-icon>
+              </button>
+            </v-col>
+            <v-col
+              ><v-checkbox
+                v-for="genre in genres"
+                :key="genre"
+                v-model="selectedGenre"
+                :label="genre"
+                :value="genre"
+                class="mb-4"
+                hide-details
+                color="primary"
+              ></v-checkbox>
+            </v-col>
+            <v-divider></v-divider>
+            <v-col cols="12" class="d-flex align-center justify-space-between">
+              <p class="text-h5">By year</p>
+              <button
+                class="text-right text-primary d-flex align-center justify-space-between"
+                @click="resetFilteredYear()"
+              >
+                <span class="mr-1">Clear</span>
+                <v-icon size="24">mdi-close</v-icon>
+              </button>
+            </v-col>
+            <v-col class="py-0">
+              <v-checkbox
+                v-for="year in years"
+                :key="year"
+                v-model="selectedYear"
+                :label="year"
+                :value="year"
+                class="mb-4"
+                hide-details
+                color="primary"
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+
+          <v-divider class="my-6"></v-divider>
+
+          <v-row align="center" justify="center">
+            <v-col cols="6">
+              <v-btn
+                rounded="lg"
+                flat
+                :disabled="disabledClearAll == false ? null : true"
+                block
+                @click="clearFilter()"
+                >Clear All</v-btn
+              >
+            </v-col>
+            <v-col cols="6">
+              <v-btn
+                class="text-primary"
+                color="primary-lighten-1"
+                rounded="lg"
+                flat
+                block
+                @click="applyFilter()"
+                >Apply</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-container>
+      </transition>
+
       <v-row class="mt-10 pt-10">
         <v-col cols="6" sm="3" v-for="movie in loadedMovieList">
           <v-card flat class="mx-auto">
@@ -173,7 +269,7 @@
       <v-row class="mt-6" align="center" justify="center">
         <v-col cols="auto">
           <v-btn
-            v-if="currentPage !== totalPage"
+            v-if="totalPage && currentPage !== totalPage"
             @click="loadMovieList()"
             class="text-primary px-6"
             color="primary-lighten-1"
@@ -202,6 +298,7 @@ export default {
       currentPage: 0,
       pageSize: 4,
       filterDropdown: false,
+      filterDropdownMob: false,
       genres: ["Action", "Comedy", "Drama", "Romance", "Thriller", "War"],
       years: ["2018", "2019", "2020", "2021", "2022"],
       movieList: [
@@ -340,6 +437,7 @@ export default {
       this.filteredGenre = this.selectedGenre;
       this.filteredYear = this.selectedYear;
       this.filterDropdown = false;
+      this.filterDropdownMob = false;
       this.filterMovieList(this.selectedGenre);
       this.loadMovieList();
     },
@@ -347,6 +445,7 @@ export default {
       this.selectedGenre = this.filteredGenre;
       this.selectedYear = this.filteredYear;
       this.filterDropdown = false;
+      this.filterDropdownMob = false;
     },
     resetFilteredGenre() {
       this.selectedGenre = [];
@@ -361,3 +460,13 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.v-input__slot {
+  min-height: unset;
+}
+
+.v-input--selection-controls {
+  min-height: unset;
+}
+</style>
